@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Afegir alumnes a grups
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1.1
+// @version      0.1.2
 // @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -20,6 +20,7 @@
  * Versions:
  *  - 0.1.0 (2018-07-25) Refet des de zero per compatibilitat i modularitat, així com per afegir notificacions
  *  - 0.1.1 (2018-07-26) Ara funciona amb grups que no tenen la "descripció" buida
+ *  - 0.1.2 (2018-07-26) Afegida familia de fonts monoespaiades per a les assignacions
  *
  * NOTA: Aquest script aprofita que UdGMoodle fa servir les icones de FontAwesome (veure https://fontawesome.com/icons?d=gallery)
  */
@@ -81,7 +82,7 @@
 
             // #assignacions és on cal enganxar les dades (número UdG i nom de grup, separats per espai en blanc, una parella per línia)
             var pistaText = "Enganxa aquí números UdG i el seu grup corresponent.\n\nExemple:\n1987654 P.Inf-2\n1976543 P.Inf-3\n1965432 P.Inf-1";
-            GM_addStyle("#assignacions { background-color: #FFE; font-family: Consolas !important; height: 21.9em; margin-top: 1.8em }");
+            GM_addStyle("#assignacions { background-color: #FFE; font-family: Consolas, monaco, monospace !important; height: 21.9em; margin-top: 1.8em }");
             $("div.groupmanagementtable div.row")
                 .append(`<div class="col-md-2 span2"><textarea autofocus id="assignacions" placeholder="${pistaText}" spellcheck="false">`)
                 .find("div.col-md-6.span6").removeClass("col-md-6 span6").addClass("col-md-4 span4");
