@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Afegir alumnes a grups
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1
+// @version      0.1.1
 // @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -18,7 +18,8 @@
 
 /*
  * Versions:
- *  - 0.1 (2018-07-25) Refet des de zero per compatibilitat i modularitat, així com per afegir notificacions.
+ *  - 0.1.0 (2018-07-25) Refet des de zero per compatibilitat i modularitat, així com per afegir notificacions
+ *  - 0.1.1 (2018-07-26) Ara funciona amb grups que no tenen la "descripció" buida
  *
  * NOTA: Aquest script aprofita que UdGMoodle fa servir les icones de FontAwesome (veure https://fontawesome.com/icons?d=gallery)
  */
@@ -106,7 +107,7 @@
         } else if (window.location.pathname == "/group/members.php") { // pàgina per afegir/suprimir usuaris a un grup
 
             // Prepara les dades amb les que es treballarà
-            var grup = $("#region-main h3").text().substr(27).replace(/\s+/g, " "); // omet el text inicial: "Afegeix/suprimeix usuaris: "
+            var grup = $("#maincontent+h3").text().substr(27).replace(/\s+/g, " "); // omet el text "Afegeix/suprimeix usuaris: "
             assignacions = " " + GM_getValue("assignacions").replace(/\s+/g, " ") + " ";
             var usuarisTrobats = 0;
 
