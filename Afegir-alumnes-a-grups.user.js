@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Afegir alumnes a grups
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1.2
+// @version      0.1.3
 // @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -14,6 +14,7 @@
 // @grant        GM_getResourceText
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_deleteValue
 // ==/UserScript==
 
 /*
@@ -21,6 +22,7 @@
  *  - 0.1.0 (2018-07-25) Refet des de zero per compatibilitat i modularitat, així com per afegir notificacions
  *  - 0.1.1 (2018-07-26) Ara funciona amb grups que no tenen la "descripció" buida
  *  - 0.1.2 (2018-07-26) Afegida familia de fonts monoespaiades per a les assignacions
+ *  - 0.1.3 (2018-07-28) Millors notificacions a la pàgina de gestió d'usuaris d'un grup
  *
  * NOTA: Aquest script aprofita que UdGMoodle fa servir les icones de FontAwesome (veure https://fontawesome.com/icons?d=gallery)
  */
@@ -75,10 +77,11 @@
     // Totes les modificacions es fan una vegada la pàgina s'ha carregat
     $(document).ready(function () {
 
-        notificacio("UdGMoodle: Afegir alumnes a grups", "hola"); // per fer notar que l'script està funcionant
-
         var assignacions;
         if (window.location.pathname == "/group/index.php") { // pàgina per gestionar els grups
+
+            // Fa notar que l'script està funcionant
+            notificacio("UdGMoodle: Afegir alumnes a grups", "hola");
 
             // #assignacions és on cal enganxar les dades (número UdG i nom de grup, separats per espai en blanc, una parella per línia)
             var pistaText = "Enganxa aquí números UdG i el seu grup corresponent.\n\nExemple:\n1987654 P.Inf-2\n1976543 P.Inf-3\n1965432 P.Inf-1";
@@ -105,7 +108,15 @@
                 GM_setValue("assignacions", this.value.trim().replace(/\s+/g, " ").replace(/\s(\d{7})/g, "\n$1"));
             });
 
+            // Oblida el nombre d'usuaris inscrits a l'últim grup gestionat
+            GM_deleteValue("usuarisInscrits");
+
         } else if (window.location.pathname == "/group/members.php") { // pàgina per afegir/suprimir usuaris a un grup
+
+            // Cal haver introduït prèviament dades a la pàgina de gestió de grups
+            if (GM_getValue("assignacions")=="") {
+                notificacio("No hi ha dades amb les que treballar!", "error");
+            }
 
             // Prepara les dades amb les que es treballarà
             var grup = $("#maincontent+h3").text().substr(27).replace(/\s+/g, " "); // omet el text "Afegeix/suprimeix usuaris: "
@@ -114,7 +125,7 @@
 
             // Recorre la llista d'usuaris que es poden afegir al grup (inclou profes i coordinadors!)
             var infoUsuariRE = /^.+\s\((\d{7}), .+\)\s\(\d\d?\)$/; // format: nom i cognoms (#######, correu) (#)
-            $("#addselect option").each(function () {
+            $("#addselect option:enabled").each(function () {
 
                 // Prepara les dades amb les que es treballarà
                 var usuari = $(this);
@@ -127,10 +138,24 @@
                 }
             });
 
-            // Notifica quans usuaris ha trobat i seleccionat
+            // Notifica quants usuaris s'acaben d'afegir a aquest grup
+            var usuarisInscrits = $("#removeselect option:enabled").length;
+            var usuarisAfegits = usuarisInscrits - GM_getValue("usuarisInscrits"); // pot ser NaN!
+            if (usuarisInscrits != GM_getValue("usuarisInscrits")) {
+                if (usuarisAfegits > 0) {
+                    notificacio("Nombre d'usuaris afegits: " + usuarisAfegits);
+                } else if (usuarisAfegits < 0) {
+                    notificacio("Nombre d'usuaris suprimits: " + -usuarisAfegits);
+                }
+                // Actualitza el nombre d'usuaris inscrits a aquest grup
+                GM_setValue("usuarisInscrits", usuarisInscrits);
+            }
+
+            // Notifica quants usuaris ha trobat i seleccionat
             if (usuarisTrobats > 0) {
                 notificacio("Nombre d'usuaris auto-seleccionats: " + usuarisTrobats);
-            } else {
+            } else if ((usuarisAfegits == 0) || isNaN(usuarisAfegits)) {
+                // Això no es fa si s'en acaben d'afegir o suprimir usuaris
                 notificacio("No s'ha trobat cap usuari per auto-seleccionar", "avis");
             }
 
