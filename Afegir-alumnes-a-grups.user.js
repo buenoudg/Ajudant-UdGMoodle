@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Afegir alumnes a grups
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1.3
+// @version      0.1.4
 // @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -19,13 +19,40 @@
 
 /*
  * Versions:
- *  - 0.1.0 (2018-07-25) Refet des de zero per compatibilitat i modularitat, així com per afegir notificacions
+ *  - 0.1.0 (2018-07-25) Refet des de zero per compatibilitat i per afegir notificacions
  *  - 0.1.1 (2018-07-26) Ara funciona amb grups que no tenen la "descripció" buida
  *  - 0.1.2 (2018-07-26) Afegida familia de fonts monoespaiades per a les assignacions
  *  - 0.1.3 (2018-07-28) Millors notificacions a la pàgina de gestió d'usuaris d'un grup
+ *  - 0.1.4 (2018-07-28) Retocs estètics i simplificació del codi
  *
- * NOTA: Aquest script aprofita que UdGMoodle fa servir les icones de FontAwesome (veure https://fontawesome.com/icons?d=gallery)
+ * NOTA: Aquest script aprofita que UdGMoodle fa servir FontAwesome 4.7.0 (veure https://fontawesome.com/v4.7.0/icons/?d=gallery)
  */
+
+// les instruccions que es veuran al requadre #assignacions quan estigui buit
+const instruccions =
+`Enganxa aquí números UdG i el seu grup corresponent.
+
+Exemple:
+1987654 P.Inf-2
+1976543 P.Inf-3
+1965432 P.Inf-1
+1954321 P.Inf-2
+
+Després selecciona cada grup i prem el botó &quot;Afegeix/suprimeix usuaris&quot;`;
+
+// #assignacions és el requadre on cal enganxar la llista de números UdG i grups
+const assignacionsCSS = 
+`#assignacions {
+    background-color: #FFE;
+    font-family: Consolas, monaco, monospace !important;
+    height: 22.6em; margin-top: 0.3em
+}`
+const assignacionsHTML = 
+`<div class="col-md-2 span2">
+<span><span class="fa fa-wrench"></span>Ajudant Moodle</span>
+<textarea autofocus id="assignacions" placeholder="${instruccions}" spellcheck="false">
+</textarea>
+</div>`;
 
 (function () {
     "use strict";
@@ -39,8 +66,8 @@
         ".fa-2x    { vertical-align: middle; margin-right: 0.33em }");
 
     function notificacio(missatge, tipus = "info", durada = 5) {
-        // El paràmetre "tipus" admet quatre valors: "info" per defecte, "avis", "error" i "hola"
-        // El paràmetre "durada" s'expressa en segons (per defecte 5) tot i que Toastify fa servir mil·lisegons
+        // El paràmetre "tipus" admet quatre valors: "info", "avis", "error" i "hola"
+        // El paràmetre "durada" s'expressa en segons tot i que Toastify fa servir mil·lisegons
         var color, icona;
         switch (tipus) {
             case "avis":
@@ -48,7 +75,7 @@
                 icona = '<span class="fa fa-2x fa-exclamation-triangle"></span>';
                 break;
             case "error":
-                color = "rgba(201, 0, 0, 0.8)";
+                color = "rgba(201, 51, 51, 0.8)";
                 icona = '<span style="color:yellow"><span class="fa fa-2x fa-times-circle"></span>';
                 break;
             case "hola":
@@ -56,7 +83,7 @@
                 icona = '<span class="fa fa-2x fa-wrench"></span>';
                 break;
             default:
-                color = "rgba(102, 102, 204, 0.8)";
+                color = "rgba(51, 51, 153, 0.8)";
                 icona = '<span class="fa fa-2x fa-info-circle"></span>';
         }
         window.Toastify({
@@ -69,25 +96,23 @@
 
 
     /*
-     * Les manipulacions del DOM es fan (per ara) amb la versió "slim" de jQuery
+     * Les manipulacions del DOM es fan amb la versió "slim" de jQuery
      */
 
-    var $ = window.jQuery; // innecessari, però evita falsos missatges d'error a l'editor de Tampermonkey
+    var $ = window.jQuery; // innecessari, però evita errors falsos a l'editor de Tampermonkey
 
     // Totes les modificacions es fan una vegada la pàgina s'ha carregat
     $(document).ready(function () {
-
         var assignacions;
-        if (window.location.pathname == "/group/index.php") { // pàgina per gestionar els grups
+        if (window.location.pathname == "/group/index.php") { // gestió dels grups
 
             // Fa notar que l'script està funcionant
             notificacio("UdGMoodle: Afegir alumnes a grups", "hola");
 
-            // #assignacions és on cal enganxar les dades (número UdG i nom de grup, separats per espai en blanc, una parella per línia)
-            var pistaText = "Enganxa aquí números UdG i el seu grup corresponent.\n\nExemple:\n1987654 P.Inf-2\n1976543 P.Inf-3\n1965432 P.Inf-1";
-            GM_addStyle("#assignacions { background-color: #FFE; font-family: Consolas, monaco, monospace !important; height: 21.9em; margin-top: 1.8em }");
-            $("div.groupmanagementtable div.row")
-                .append(`<div class="col-md-2 span2"><textarea autofocus id="assignacions" placeholder="${pistaText}" spellcheck="false">`)
+            // El requadre #assignacions és on cal enganxar les dades
+            // Format: un número UdG i un nom de grup, separats per un espai en blanc, a cada línia
+            GM_addStyle(assignacionsCSS);
+            $("div.groupmanagementtable div.row").append(assignacionsHTML)
                 .find("div.col-md-6.span6").removeClass("col-md-6 span6").addClass("col-md-4 span4");
 
             // Recupera les assignacions existents
@@ -103,15 +128,17 @@
                 notificacio("Assignacions esborrades per canvi d'assignatura", "avis");
             }
 
-            // Guarda les assignacions si hi canvien (sanejan el que s'hagi escrit)
+            // Guarda les assignacions si hi canvien
             $("#assignacions").on("change keyup paste", function () {
-                GM_setValue("assignacions", this.value.trim().replace(/\s+/g, " ").replace(/\s(\d{7})/g, "\n$1"));
+                // Abans de guardar-les, es simplifica l'espai en blanc del text introduït
+                GM_setValue("assignacions", 
+                    this.value.trim().replace(/\s+/g, " ").replace(/\s(\d{7})/g, "\n$1"));
             });
 
             // Oblida el nombre d'usuaris inscrits a l'últim grup gestionat
             GM_deleteValue("usuarisInscrits");
 
-        } else if (window.location.pathname == "/group/members.php") { // pàgina per afegir/suprimir usuaris a un grup
+        } else if (window.location.pathname == "/group/members.php") { // gestió d'usuaris d'un grup
 
             // Cal haver introduït prèviament dades a la pàgina de gestió de grups
             if (GM_getValue("assignacions")=="") {
@@ -124,14 +151,14 @@
             var usuarisTrobats = 0;
 
             // Recorre la llista d'usuaris que es poden afegir al grup (inclou profes i coordinadors!)
-            var infoUsuariRE = /^.+\s\((\d{7}), .+\)\s\(\d\d?\)$/; // format: nom i cognoms (#######, correu) (#)
+            var infoUsuariRE = /^.+\s\((\d{7}),\s.+\)\s\(\d\d?\)$/; // cognoms nom (#######, correu) (#)
             $("#addselect option:enabled").each(function () {
 
                 // Prepara les dades amb les que es treballarà
                 var usuari = $(this);
                 var numeroUdG = infoUsuariRE.exec(usuari.text().trim())[1];
 
-                // Cerca a les assignacions, seleccionant els usuaris que es volen assignar a aquest grup
+                // Cerca a les assignacions, seleccionant els usuaris a assignar a aquest grup
                 if (assignacions.indexOf(` ${numeroUdG} ${grup} `) > -1) {
                     usuari.prop("selected", true);
                     usuarisTrobats++;
