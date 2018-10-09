@@ -17,6 +17,7 @@
  *  Versions:
  * - 0.1.0 (2017-11-20) Primera versió (idea i provador: JLM)
  * - 0.2.0 (2018-10-09) 1a versió pública. Script refet des de zero per compatibilitat i modularitat, així com per afegir notificacions.
+ * - 0.2.1 (2018-10-09) Informació de rol i grup al títol de la pàgina. Retocs per impressió del llistat.
  *
  * NOTA: Aquest script aprofita que UdGMoodle fa servir FontAwesome 4.7.0 (veure https://fontawesome.com/v4.7.0/icons/?d=gallery)
  */
@@ -57,6 +58,7 @@ body.imprimible #dock,
 body.imprimible #navwrap,
 body.imprimible #page-navbar,
 body.imprimible #page-footer,
+body.imprimible #block-region-side-post,
 body.imprimible h2,
 body.imprimible p,
 body.imprimible div.initialbar,
@@ -67,6 +69,7 @@ body.imprimible #participants tr th+th+th+th+th,
 body.imprimible #participants tr td+td+td+td+td,
 body.imprimible #participants img.icon,
 body.imprimible .btn,
+body.imprimible div.groupinfobox,
 body.imprimible div.pull-right,
 body.imprimible div.pull-right+form,
 body.imprimible a.back-to-top {
@@ -135,9 +138,11 @@ body.imprimible #participants th, body.imprimible #participants td {
             $(this).attr("src", $(this).attr("src").replace(/\/f[12]/, "/f3"));
         });
 
-        // PENDENT: Informació de rol i grup al títol de la pàgina
-        // Per ara: Nom de l'assignatura al títol de la pàgina
-        document.title = $("#sitetitle").text().replace("/", "-");
+        // Nom de l'assignatura i nombre de participants al títol de la pàgina
+        var nomAssignatura = $("#sitetitle").text().trim();
+        var rolLlistats = "participants";
+        var nombreLlistats = $("div.userlist p").text().trim().split(" ").slice(-1);
+        document.title = $("#sitetitle").text().replace("/", "-") + " - " + nombreLlistats + " " + rolLlistats;
 
         // Mostra la llista completa de participants
         if (window.location.href.indexOf("&perpage=") < 0) {
@@ -163,6 +168,21 @@ body.imprimible #participants th, body.imprimible #participants td {
             GM_addStyle(cssImprimible);
             $("body").addClass("imprimible").removeClass("has_dock");
             notificacio("UdGMoodle: Mostrant llistat imprimible");
+
+            // Afegeix informació de rol i grup al títol de la pàgina
+            var nombreLlistats = $("div.userlist p").text().trim().split(" ").slice(-1);
+            var grupLlistat = "";
+            $("span.label-info").each(function() {
+                var [tipusEtiqueta, valorEtiqueta] = $(this).text().trim().substring(2).split(": ");
+                if (tipusEtiqueta == "Rol") {
+                    rolLlistats = valorEtiqueta + "s";
+                }
+                if (tipusEtiqueta == "Grup") {
+                    grupLlistat = "(grup " + valorEtiqueta + ")";
+                }
+            });
+            document.title = [nomAssignatura, "- ", nombreLlistats, rolLlistats, grupLlistat].join(" ");
+
             return false;
         });
 
