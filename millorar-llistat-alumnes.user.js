@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name         UdGMoodle: Millorar llistat d'alumnes
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.2.0
+// @version      0.2.2
 // @description  Mostra millors fotos al llistat de participants, i facilita la seva còpia i impressió
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
 // @match        *://moodle2.udg.edu/user/index.php*
+// @match        *://cursos.udg.edu/user/index.php*
 // @require      https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.slim.min.js
 // @require      https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
@@ -18,6 +19,8 @@
  * - 0.1.0 (2017-11-20) Primera versió (idea i provador: JLM)
  * - 0.2.0 (2018-10-09) 1a versió pública. Script refet des de zero per compatibilitat i modularitat, així com per afegir notificacions.
  * - 0.2.1 (2018-10-09) Informació de rol i grup al títol de la pàgina. Retocs per impressió del llistat.
+ * - 0.2.2 (2019-10-01) Amaga la nova capcelera del Moodle UdG. Restaura la impressió de les fotos dels estudiants.
+ * - 0.2.3 (pendent)    Restaurar la informació de rols al títol de la pàgina.
  *
  * NOTA: Aquest script aprofita que UdGMoodle fa servir FontAwesome 4.7.0 (veure https://fontawesome.com/v4.7.0/icons/?d=gallery)
  */
@@ -39,7 +42,12 @@ const cssFotos =
 }
 #page-content img.userpicture[src$=f3] {
     filter: brightness(1);
-}`;
+}
+@media print {
+    #page-content img.userpicture {
+        display: inherit !important;
+    }
+`;
 // Els participants no estudiants es marquen amb colors diferents
 const cssLlista =
 `#page-content tr.professor td, #page-content tr.professor-no-editor td {
@@ -53,7 +61,8 @@ const cssLlista =
 }`;
 // S'amaga tot el que no es vol imprimir
 const cssImprimible =
-`body.imprimible #page-header-wrapper,
+`body.imprimible #adaptable-page-header-wrapper,
+body.imprimible #page-header-wrapper,
 body.imprimible #dock,
 body.imprimible #navwrap,
 body.imprimible #page-navbar,
@@ -181,7 +190,7 @@ body.imprimible #participants th, body.imprimible #participants td {
                     grupLlistat = "(grup " + valorEtiqueta + ")";
                 }
             });
-            document.title = [nomAssignatura, "- ", nombreLlistats, rolLlistats, grupLlistat].join(" ");
+            document.title = [nomAssignatura.replace("/", "-"), "- ", nombreLlistats, rolLlistats, grupLlistat].join(" ");
 
             return false;
         });
