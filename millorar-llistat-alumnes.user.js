@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Millorar llistat d'alumnes
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.2.2
+// @version      0.2.3
 // @description  Mostra millors fotos al llistat de participants, i facilita la seva còpia i impressió
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -20,7 +20,7 @@
  * - 0.2.0 (2018-10-09) 1a versió pública. Script refet des de zero per compatibilitat i modularitat, així com per afegir notificacions.
  * - 0.2.1 (2018-10-09) Informació de rol i grup al títol de la pàgina. Retocs per impressió del llistat.
  * - 0.2.2 (2019-10-01) Amaga la nova capcelera del Moodle UdG. Restaura la impressió de les fotos dels estudiants.
- * - 0.2.3 (pendent)    Restaurar la informació de rols al títol de la pàgina.
+ * - 0.2.3 (2019-10-08) Restaura la informació de rols al títol de la pàgina, i poder escollir la orientació del full en imprimir.
  *
  * NOTA: Aquest script aprofita que UdGMoodle fa servir FontAwesome 4.7.0 (veure https://fontawesome.com/v4.7.0/icons/?d=gallery)
  */
@@ -42,12 +42,17 @@ const cssFotos =
 }
 #page-content img.userpicture[src$=f3] {
     filter: brightness(1);
-}
-@media print {
+}`;
+// Imprimeix les fotos dels estudiants i deixa escollir la orientació del full
+const cssPagina =
+`@media print {
     #page-content img.userpicture {
         display: inherit !important;
     }
-`;
+    @page {
+        size: auto;
+    }
+}`;
 // Els participants no estudiants es marquen amb colors diferents
 const cssLlista =
 `#page-content tr.professor td, #page-content tr.professor-no-editor td {
@@ -81,6 +86,7 @@ body.imprimible .btn,
 body.imprimible div.groupinfobox,
 body.imprimible div.pull-right,
 body.imprimible div.pull-right+form,
+body.imprimible i.icon,
 body.imprimible a.back-to-top {
     display: none !important;
 }
@@ -181,7 +187,7 @@ body.imprimible #participants th, body.imprimible #participants td {
             // Afegeix informació de rol i grup al títol de la pàgina
             var nombreLlistats = $("div.userlist p").text().trim().split(" ").slice(-1);
             var grupLlistat = "";
-            $("span.label-info").each(function() {
+            $("span.tag-info").each(function() {
                 var [tipusEtiqueta, valorEtiqueta] = $(this).text().trim().substring(2).split(": ");
                 if (tipusEtiqueta == "Rol") {
                     rolLlistats = valorEtiqueta + "s";
