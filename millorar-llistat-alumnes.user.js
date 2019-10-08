@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Millorar llistat d'alumnes
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.2.3
+// @version      0.2.3.1
 // @description  Mostra millors fotos al llistat de participants, i facilita la seva còpia i impressió
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -87,7 +87,8 @@ body.imprimible div.groupinfobox,
 body.imprimible div.pull-right,
 body.imprimible div.pull-right+form,
 body.imprimible i.icon,
-body.imprimible a.back-to-top {
+body.imprimible a.back-to-top,
+.toastify {
     display: none !important;
 }
 body.imprimible #participants th, body.imprimible #participants td {
@@ -149,6 +150,8 @@ body.imprimible #participants th, body.imprimible #participants td {
 
         // Fotos més grans i clares, dins un quadrat arrodonit, i amb més qualitat
         GM_addStyle(cssFotos);
+        // Imprimeix les fotos dels estudiants i deixa escollir la orientació del full
+        GM_addStyle(cssPagina);
         $("#page-content img.userpicture").each(function() {
             $(this).attr("src", $(this).attr("src").replace(/\/f[12]/, "/f3"));
         });
