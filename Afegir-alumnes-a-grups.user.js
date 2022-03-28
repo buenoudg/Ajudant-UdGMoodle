@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         UdGMoodle: Afegir alumnes a grups
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1.4
+// @version      0.1.5
 // @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
 // @match        *://moodle2.udg.edu/group/index.php*
 // @match        *://moodle2.udg.edu/group/members.php*
+// @match        *://cursos.udg.edu/group/index.php*
+// @match        *://cursos.udg.edu/group/members.php*
 // @require      https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.slim.min.js
 // @require      https://cdn.jsdelivr.net/npm/toastify-js
 // @resource     toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
@@ -24,8 +26,7 @@
  *  - 0.1.2 (2018-07-26) Afegida familia de fonts monoespaiades per a les assignacions
  *  - 0.1.3 (2018-07-28) Millors notificacions a la pàgina de gestió d'usuaris d'un grup
  *  - 0.1.4 (2018-07-28) Retocs estètics i simplificació del codi
- *
- * NOTA: Aquest script aprofita que UdGMoodle fa servir FontAwesome 4.7.0 (veure https://fontawesome.com/v4.7.0/icons/?d=gallery)
+ *  - 0.1.5 (2022-03-28) L'script ara també funciona al Moodle de la Fundació UdG
  */
 
 // les instruccions que es veuran al requadre #assignacions quan estigui buit
@@ -72,19 +73,19 @@ const assignacionsHTML =
         switch (tipus) {
             case "avis":
                 color = "rgba(201, 201, 0, 0.8)";
-                icona = '<span class="fa fa-2x fa-exclamation-triangle"></span>';
+                icona = '⚠';
                 break;
             case "error":
                 color = "rgba(201, 51, 51, 0.8)";
-                icona = '<span style="color:yellow"><span class="fa fa-2x fa-times-circle"></span>';
+                icona = '❌';
                 break;
             case "hola":
                 color = "rgba(51, 153, 51, 0.8)";
-                icona = '<span class="fa fa-2x fa-wrench"></span>';
+                icona = '🛠';
                 break;
             default:
                 color = "rgba(51, 51, 153, 0.8)";
-                icona = '<span class="fa fa-2x fa-info-circle"></span>';
+                icona = 'ℹ';
         }
         window.Toastify({
             text: icona + missatge,
