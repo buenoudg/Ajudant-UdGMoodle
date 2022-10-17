@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.3
+// @version     0.3.1
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
 // @namespace   bueno.bcds.udg.edu
 // @match       https://moodle2.udg.edu/mod/quiz/attempt.php*
@@ -36,7 +36,7 @@
             $("body").prepend($("#region-main"));
             // Add editable block with the quiz title at the beginning of the container
             $("#responseform").prepend('<div class="que"><div class="formulation"><div contenteditable="true"><h3>' +
-                                       $(".mod_quiz-section-heading").text() +
+                                       document.title +
                                        "</h3><i><b>Bloc editable</b> (també es pot enganxar des de Word i similars)</div>");
             // Modify webpage appearance
             let stylesheet = document.createElement("style");
@@ -44,9 +44,10 @@
                 /* Hide elements */
                 nav, #nav-drawer, #nav-drawer-footer, .activity-navigation,
                 #page-wrapper, #top-footer, .que .info, .submitbtns, .multichoice .prompt { display: none !important }
+                .que .formulation { background-color: transparent }
 
                 /* Adjust spacing */
-                body, .que .content { margin: 0 }
+                body, .que .content, .que .ablock, .que .ablock .answer>div:last-child { margin: 0 }
                 #region-main>.card { border: none }
                 .card-body { padding: 0 !important }
                 .que { margin: 1em auto }
