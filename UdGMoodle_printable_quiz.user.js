@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.1
+// @version     0.2
 // @author      Antonio Bueno
 // @namespace   antonio.bueno@udg.edu
 // @match       https://moodle2.udg.edu/mod/quiz/attempt.php*
@@ -37,12 +37,13 @@
             let stylesheet = document.createElement("style");
             stylesheet.textContent = `
                 nav, #nav-drawer, #nav-drawer-footer, .activity-navigation,
-                #page-wrapper, #top-footer, .que .info, .submitbtns { display:none !important }
+                #page-wrapper, #top-footer, .que .info, .submitbtns, .multichoice .prompt { display: none !important }
 
                 body, .que .content { margin: 0 }
                 #region-main>.card { border: none }
                 .card-body { padding: 0 !important }
                 .que { margin: 1em auto }
+                .que .qtext { margin-bottom: 0.5em }
 
                 body { counter-reset: question }
                 .que .qtext::before { counter-increment: question; content: counter(question) ". "; font-weight: bold }
