@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.2.1
+// @version     0.3
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
 // @namespace   bueno.bcds.udg.edu
 // @match       https://moodle2.udg.edu/mod/quiz/attempt.php*
@@ -34,9 +34,10 @@
         $("#printable").on("click", function () {
             // Move quiz container to the top
             $("body").prepend($("#region-main"));
-            // Add editable block at the beginning of the quiz container
-            $("#responseform").prepend('<div class="que"><div class="formulation"><p contenteditable="true">' +
-                                       "<i><b>Text editable</b> (es pot copiar i enganxar des de Word i similars)");
+            // Add editable block with the quiz title at the beginning of the container
+            $("#responseform").prepend('<div class="que"><div class="formulation"><div contenteditable="true"><h3>' +
+                                       $(".mod_quiz-section-heading").text() +
+                                       "</h3><i><b>Bloc editable</b> (també es pot enganxar des de Word i similars)</div>");
             // Modify webpage appearance
             let stylesheet = document.createElement("style");
             stylesheet.textContent = `
