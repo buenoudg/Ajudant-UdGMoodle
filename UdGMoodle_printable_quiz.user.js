@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.3.1
+// @version     0.3.2
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
+// @description Cleans/simplifies a Moodle Quiz to be printable
 // @namespace   bueno.bcds.udg.edu
 // @match       https://moodle2.udg.edu/mod/quiz/attempt.php*
 // @icon        https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
-// @require     https://cdn.jsdelivr.net/npm/toastify-js
-// @resource    toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
+// @require     https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
+// @resource    toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.css
 // @grant       GM.getResourceUrl
 // ==/UserScript==
 
