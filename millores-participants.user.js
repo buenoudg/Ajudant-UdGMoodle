@@ -17,8 +17,8 @@
 // @require         https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require         https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
 // @resource        toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
-// @grant           GM.addStyle
-// @grant           GM.getResourceText
+// @grant           GM_addStyle
+// @grant           GM_getResourceText
 // ==/UserScript==
 
 // TODO: Rerun everything when page mutates
@@ -49,7 +49,7 @@
         const codiAssignatura = document.title.split("/")[0];
 
         // Fotos més grans i clares, dins un quadrat arrodonit, i amb més qualitat
-        GM.addStyle("" + `
+        GM_addStyle("" + `
             #page-content img.userpicture {
                 border-radius: 10%;
                 height: ${midaFoto}px !important;
@@ -64,7 +64,7 @@
         });
 
         // Marca amb colors diferents els participants no estudiants
-        GM.addStyle("" + `
+        GM_addStyle("" + `
             #page-content tr.professor td, #page-content tr.professor-no-editor td {
                 background-color: ${colorProfessor};
             }
@@ -129,7 +129,7 @@
      * Notifications courtesy of Toastify JS (see https://apvarun.github.io/toastify-js/)
      */
 
-    GM.addStyle(GM.getResourceText("toastifyCSS") + `
+    GM_addStyle(GM_getResourceText("toastifyCSS") + `
         div.toastify { margin: inherit; padding-bottom: 20px; width: inherit; font-family:
             -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif }
     `);
