@@ -3,7 +3,7 @@
 // @name:ca         Millores a "Participants"
 // @name:en         Improvements to "Participants"
 // @name:es         Mejoras en "Participantes"
-// @version         0.3.0
+// @version         0.3.1
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Coloreja segons els rols, fa les fotos més grans i genera un llistat alumne/professor
 // @description:ca  Coloreja segons els rols, fa les fotos més grans i genera un llistat alumne/professor
@@ -15,7 +15,7 @@
 // @match           https://moodle2.udg.edu/user/index.php?*perpage=5000*
 // @icon            https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
 // @require         https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
-// @require         https://cdn.jsdelivr.net/npm/toastify-js
+// @require         https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
 // @resource        toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
 // @grant           GM.addStyle
 // @grant           GM.getResourceText
