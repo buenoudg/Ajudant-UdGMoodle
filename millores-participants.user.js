@@ -3,7 +3,7 @@
 // @name:ca         Millores a "Participants"
 // @name:en         Improvements to "Participants"
 // @name:es         Mejoras en "Participantes"
-// @version         0.3.0
+// @version         0.4.0
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Coloreja segons els rols, fa les fotos més grans i genera un llistat alumne/professor
 // @description:ca  Coloreja segons els rols, fa les fotos més grans i genera un llistat alumne/professor
@@ -12,7 +12,7 @@
 // @license         MIT
 // @namespace       https://github.com/buenoudg/Ajudant-UdGMoodle
 // @supportURL      https://github.com/buenoudg/Ajudant-UdGMoodle/issues
-// @match           https://moodle2.udg.edu/user/index.php?*perpage=5000*
+// @match           https://moodle2.udg.edu/user/index.php?*
 // @icon            https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
 // @require         https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
 // @require         https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
@@ -44,7 +44,7 @@
     $(document).ready(function () {
 
         // Makes clear that the script is running and its version
-        notification(GM.info.script.name + " " + GM.info.script.version);
+        notification(GM.info.script.name + " " + GM.info.script.version, "hello", 3);
 
         const codiAssignatura = document.title.split("/")[0];
 
@@ -85,43 +85,49 @@
             const participant = {
                 "cognomsNom": $(this).find(".c1").text().trim(),
                 "numeroUdG": $(this).find(".c2").text().trim(),
-                "correu": $(this).find(".c3").text().trim(),
-                "rol": $(this).find(".c4").text().trim(), // assumed not a list
-                "grups": $(this).find(".c5").text().trim(),
-                "estat": $(this).find(".c7").text().trim()
+                "rol": $(this).find(".c4").text().trim(), // the script assumes each participant has a single role
+                "grups": $(this).find(".c5").text().trim()
             };
             participant.grups = (participant.grups == "Sense grups") ? [] : participant.grups.split(", ");
             participants.push(participant);
         });
 
-        // Dades derivades a partir de les dades extretes
-        const professors = participants.filter(participant => (participant.rol != "Estudiant") && (participant.grups.length > 0));
-        let grups = {};
-        professors.forEach(function (professor) {
-            professor.grups.forEach(function (grup) {
-                if (!grups[grup]) grups[grup] = [];
-                grups[grup].push(professor.cognomsNom);
+        if (document.location.href.includes("perpage=5000")) {
+            // Dades derivades a partir de les dades extretes
+            const professors = participants.filter(participant => (participant.rol != "Estudiant") && (participant.grups.length > 0));
+            let grups = {};
+            professors.forEach(function (professor) {
+                professor.grups.forEach(function (grup) {
+                    if (!grups[grup]) grups[grup] = [];
+                    grups[grup].push(professor.cognomsNom + ";" + professor.numeroUdG);
+                });
             });
-        });
-        const estudiants = participants.filter(participant => participant.rol == "Estudiant");
-
-        // Relació alumne/professor (o alumne/grup si el professor del grup és desconegut)
-        let llistat = [];
-        estudiants.forEach(function (estudiant) {
-            estudiant.grups.forEach(function (grup) {
-                if (grup in grups) {
-                    grups[grup].forEach(function (professor) {
-                        llistat.push([codiAssignatura, estudiant.cognomsNom, estudiant.numeroUdG, professor].join(";"));
-                    });
-                } else {
-                    llistat.push([codiAssignatura, estudiant.cognomsNom, estudiant.numeroUdG, grup].join(";"));
-                }
+            const estudiants = participants.filter(participant => participant.rol == "Estudiant");
+            // Relació alumne/professor (o alumne/grup si el professor del grup és desconegut)
+            let llistat = [];
+            estudiants.forEach(function (estudiant) {
+                estudiant.grups.forEach(function (grup) {
+                    if (grup in grups) {
+                        grups[grup].forEach(function (professor) {
+                            llistat.push([codiAssignatura, estudiant.cognomsNom, estudiant.numeroUdG, professor].join(";"));
+                        });
+                    } else {
+                        llistat.push([codiAssignatura, estudiant.cognomsNom, estudiant.numeroUdG, grup].join(";"));
+                    }
+                });
             });
-        });
-        const CSV = [... new Set(llistat)].join("\r\n");
-        const dadesLlistat = (Object.keys(grups).length > 0) ? "alumne×professor" : "alumne×grup";
-        $(".userlist").prepend(`<a href="data:text/plain;charset=utf-8,\uFEFF${encodeURIComponent(CSV)}"
-            download="${codiAssignatura}.csv" style="float:right">💾 Descarrega llistat ${dadesLlistat}`);
+            const CSV = [... new Set(llistat)].join("\r\n");
+            const dadesLlistat = (Object.keys(grups).length > 0) ? "alumne×professor" : "alumne×grup";
+            $(".userlist").prepend(`<a href="data:text/plain;charset=utf-8,\uFEFF${encodeURIComponent(CSV)}"
+                download="${codiAssignatura}.csv" style="float:right">💾 Descarrega llistat ${dadesLlistat}`);
+        } else {
+            GM_addStyle("" + `
+                #show-all-clone { float: right }
+                #show-all { position: relative; top: -3em }
+            `);
+            $(".userlist").prepend($("#participantsform a[href*='perpage=5000']").clone().attr("id", "show-all-clone"));
+            $(".table-dynamic").after($("#participantsform a[href*='perpage=5000']").attr("id", "show-all"));
+        }
 
     });
 
@@ -141,7 +147,7 @@
             case "warning": color = "rgba(201, 201, 0, 0.8)"; icon = "⚠️"; break;
             case "error": color = "rgba(201, 51, 51, 0.8)"; icon = "🛑"; break;
             case "hello": color = "rgba(51, 153, 51, 0.8)"; icon = "👋🏼"; break;
-            default: color = "rgba(51, 51, 153, 0.8)"; icon = "ℹ️";
+            default: color = "rgba(51, 51, 153, 0.8)"; icon = "ℹ️\uFE0F ";
         }
         Toastify({ text: icon + " " + message, duration: timeout * 1000, gravity: "bottom", style: { background: color } }).showToast();
     }
