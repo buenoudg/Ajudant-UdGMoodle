@@ -3,7 +3,7 @@
 // @name:ca         Millores a "Participants"
 // @name:en         Improvements to "Participants"
 // @name:es         Mejoras en "Participantes"
-// @version         0.4.0
+// @version         0.4.1
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Coloreja segons els rols, fa les fotos més grans i genera un llistat alumne/professor
 // @description:ca  Coloreja segons els rols, fa les fotos més grans i genera un llistat alumne/professor
@@ -24,6 +24,7 @@
 // TODO: Rerun everything when page mutates
 // TODO: Apply extra brightness only to dark photos
 // TODO: Make the script independent of locale
+// TODO: Always offer the student×grup listing
 
 // jshint esversion: 8
 (function () {
@@ -92,7 +93,7 @@
             participants.push(participant);
         });
 
-        if (document.location.href.includes("perpage=5000")) {
+        if (document.location.href.includes("perpage=5000") || $("a[data-target-page-size]").length == 0) {
             // Dades derivades a partir de les dades extretes
             const professors = participants.filter(participant => (participant.rol != "Estudiant") && (participant.grups.length > 0));
             let grups = {};
