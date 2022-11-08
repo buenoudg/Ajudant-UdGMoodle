@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.3.2
+// @version     0.3.3
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
 // @description Cleans/simplifies a Moodle Quiz to be printable
 // @namespace   bueno.bcds.udg.edu
@@ -43,8 +43,8 @@
             let stylesheet = document.createElement("style");
             stylesheet.textContent = `
                 /* Hide elements */
-                nav, #nav-drawer, #nav-drawer-footer, .activity-navigation,
-                #page-wrapper, #top-footer, .que .info, .submitbtns, .multichoice .prompt { display: none !important }
+                nav, #nav-drawer, #nav-drawer-footer, .activity-navigation, #page-wrapper, #top-footer,
+                .que .info, .submitbtns, .multichoice .prompt, .content input[type="submit"] { display: none !important }
                 .que .formulation { background-color: transparent }
 
                 /* Adjust spacing */
