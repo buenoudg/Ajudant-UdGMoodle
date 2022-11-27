@@ -3,7 +3,7 @@
 // @name:ca         Participants: Llistes d'estudiants
 // @name:en         Participants: Students' lists
 // @name:es         Participantes: Listas de estudiantes
-// @version         0.7.0
+// @version         0.7.1
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Generates student/group and student/teacher lists
 // @description:ca  Genera llistes estudiant/grup i estudiant/professor
@@ -24,10 +24,9 @@
 (function () {
     "use strict";
 
-    const langs = { // localization of text in buttons, having no role, and downloaded file names
+    const langs = { // localization of text in buttons and downloaded file names
         "ca": {
             "ALL_TEXT": "Mostra'ls tots",
-            "NO_GROUP": "Sense grups",
             "SGL_TEXT": "Llista estudiant/grup",
             "SPL_TEXT": "Llista estudiant/professor",
             "SGL_FILE": "estudiant_grup",
@@ -35,7 +34,6 @@
         },
         "en": {
             "ALL_TEXT": "Show them all",
-            "NO_GROUP": "No groups",
             "SGL_TEXT": "Student/group list",
             "SPL_TEXT": "Student/professor list",
             "SGL_FILE": "student_group",
@@ -43,7 +41,6 @@
         },
         "es": {
             "ALL_TEXT": "Mostrarlos todos",
-            "NO_GROUP": "No hay grupos",
             "SGL_TEXT": "Lista estudiante/grupo",
             "SPL_TEXT": "Lista estudiante/profesor",
             "SGL_FILE": "estudiante_grupo",
@@ -65,8 +62,7 @@
             const $cells = $(this).children();
             let user = { "name": $cells.eq(info.column.fullname).text().trim() };
             if (info.column.email >= 0) user.mail = $cells.eq(info.column.email).text().trim();
-            user.groups = $cells.eq(info.column.groups).text().replace(info.lang.NO_GROUP, "").trim();
-            user.groups = (user.groups != "") ? user.groups.split(", ") : [];
+            user.groups = $cells.eq(info.column.groups).text().trim().split(", ").filter(g=>info.groups.includes(g));
             if (info.column.idnumber >= 0) user.id = $cells.eq(info.column.idnumber).text().trim();
             user.role = $cells.eq(info.column.roles).text().trim();
             if (user.role == info.noRole) user.role = undefined;
@@ -80,21 +76,18 @@
         // (Re-)generate the lists
         let users = getUserData(), obj;
         const professors = users.filter(user => user.role && (user.role != info.studentRole) && user.groups.length);
-        let groups = {}; // groups where some professor is a member
-        professors.forEach(function (professor) {
-            professor.groups.forEach(function (group) {
-                if (!groups[group]) groups[group] = [];
-                groups[group].push([professor.name, professor.id]);
-            });
-        });
+        const groups = professors.reduce(
+            (obj, p) => (p.groups.map(g => obj[g] ? obj[g].push([p.name, p.id]) : obj[g]=[[p.name, p.id]]), obj), {}
+        );
         const students = users.filter(user => user.role == info.studentRole);
         const SGList = students.map(student => student.groups
             .map(group => [info.courseId, student.name, student.id, student.mail, group])
         ).flat();
         const SPList = students.map(student => student.groups
-            .filter(group => group in groups).map(group => groups[group]
-                .map(professor => [info.courseId, student.name, student.id, professor]
-                    .flat())).flat()).flat().filter((obj = {}, item => !(obj[item] = item in obj)));
+            .filter(group => group in groups)
+            .map(group => groups[group].map(professor => [info.courseId, student.name, student.id, professor].flat()))
+            .flat()
+        ).flat().filter((obj = {}, item => !(obj[item] = item in obj)));
 
         // Also update the UdGMoodle buttons
         if (!$("#udgmoodle_buttons").length) { // button container
@@ -137,11 +130,9 @@
         // Watches for changes in the page's main table
         const targetNode = document.getElementById("participantsform"); // node to watch
         const config = { attributes: false, childList: true, subtree: true }; // observer parameters
-        const callback = (mutationList) => { // called when changes are detected
-            for (const mutation of mutationList) {
-                clearTimeout(timer);
-                timer = setTimeout(updateLists, 100); // limit calls to ten times per second
-            }
+        const callback = () => { // called when changes are detected
+            clearTimeout(timer);
+            timer = setTimeout(updateLists, 1000); // limit calls to once per second
         };
         const observer = new MutationObserver(callback); // associate the callback to an observer
         observer.observe(targetNode, config); // start monitoring the target for changes
@@ -156,6 +147,7 @@
         info.lang = langs[$("html").attr("lang").slice(0,2)] || langs.en;
         info.noRole = $("select[data-field-name='roles'] option[value='-1']").text();
         info.studentRole = $("select[data-field-name='roles'] option[value='5']").text();
+        info.groups = [...$("select[data-field-name='groups'] option:not([value='-1']")].map(i=>i.text);
 
         // Initial list generation
         let timer = setTimeout(updateLists);
