@@ -3,7 +3,7 @@
 // @name:ca         Participants: Llistes d'estudiants
 // @name:en         Participants: Students' lists
 // @name:es         Participantes: Listas de estudiantes
-// @version         0.7.1
+// @version         0.7.2
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Generates student/group and student/teacher lists
 // @description:ca  Genera llistes estudiant/grup i estudiant/professor
@@ -50,9 +50,10 @@
 
     const info = {}; // to be filled with static page details once the DOM is ready
 
-    const tableToCsvDataUrl = (table) => { // used to generate the downloadable files
-        const decimalDelimiter = new Intl.NumberFormat(Navigator.language).format(1.1).charAt(1);
-        const csv = table.map(row => row.join(decimalDelimiter == "." ? "," : ";")).join("\r\n");
+    const tableToCsvDataUrl = (table, lang="en") => { // used to generate the downloadable files
+        const delimiter = new Intl.NumberFormat(lang).format(1.1).charAt(1) == '.' ? ',' : ';';
+        // This assumes the data doesn't contain double quotes or line breaks
+        const csv = table.map(row => row.map(c => c.includes(delimiter) ? `"${c}"` : c).join(delimiter)).join("\r\n");
         return `data:text/csv;charset=utf-8,\uFEFF${encodeURIComponent(csv)}`; // MS Excel needs the \uFEFF
     };
 
@@ -77,7 +78,7 @@
         let users = getUserData(), obj;
         const professors = users.filter(user => user.role && (user.role != info.studentRole) && user.groups.length);
         const groups = professors.reduce(
-            (obj, p) => (p.groups.map(g => obj[g] ? obj[g].push([p.name, p.id]) : obj[g]=[[p.name, p.id]]), obj), {}
+            (obj, p) => (p.groups.map(g => { if (!obj[g]) obj[g] = []; obj[g].push([p.name, p.id]); }), obj), {}
         );
         const students = users.filter(user => user.role == info.studentRole);
         const SGList = students.map(student => student.groups
@@ -99,11 +100,11 @@
         } else { // already in the full list
             if (SGList.length) {
                 $("#udgmoodle_buttons").append(`<a class="sglist" download="${info.courseId}_${info.lang.SGL_FILE}.csv"
-                    href="${tableToCsvDataUrl(SGList)}">${info.lang.SGL_TEXT}</a>`);
+                    href="${tableToCsvDataUrl(SGList, info.lang.code)}">${info.lang.SGL_TEXT}</a>`);
             }
             if (SPList.length) {
                 $("#udgmoodle_buttons").append(`<a class="splist" download="${info.courseId}_${info.lang.SPL_FILE}.csv"
-                    href="${tableToCsvDataUrl(SPList)}">${info.lang.SPL_TEXT}</a>`);
+                    href="${tableToCsvDataUrl(SPList, info.lang.code)}">${info.lang.SPL_TEXT}</a>`);
             }
         }
 
@@ -144,7 +145,8 @@
         );
         info.courseId = document.title.split("/")[0];
         info.fullListUrl = String(document.location).replace(/(&perpage=\d+|perpage=\d+&)/img, "") + "&perpage=5000";
-        info.lang = langs[$("html").attr("lang").slice(0,2)] || langs.en;
+        info.lang = $("html").attr("lang").slice(0,2) || "en";
+        info.lang = Object.assign({code: info.lang}, langs[info.lang]);
         info.noRole = $("select[data-field-name='roles'] option[value='-1']").text();
         info.studentRole = $("select[data-field-name='roles'] option[value='5']").text();
         info.groups = [...$("select[data-field-name='groups'] option:not([value='-1']")].map(i=>i.text);
