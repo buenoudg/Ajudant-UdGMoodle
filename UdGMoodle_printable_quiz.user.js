@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.3.3
+// @version     0.3.4
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
 // @description Cleans/simplifies a Moodle Quiz to be printable
 // @namespace   bueno.bcds.udg.edu
@@ -43,9 +43,9 @@
             let stylesheet = document.createElement("style");
             stylesheet.textContent = `
                 /* Hide elements */
-                nav, #nav-drawer, #nav-drawer-footer, .activity-navigation, #page-wrapper, #top-footer,
-                .que .info, .submitbtns, .multichoice .prompt, .content input[type="submit"] { display: none !important }
-                .que .formulation { background-color: transparent }
+                nav, #nav-drawer, #nav-drawer-footer, .activity-navigation,
+                #page-wrapper, #top-footer, .que .info, .submitbtns, .multichoice .prompt,
+                .content input[type="submit"], .filemanager, .editor_atto_toolbar { display: none !important }
 
                 /* Adjust spacing */
                 body, .que .content, .que .ablock, .que .ablock .answer>div:last-child { margin: 0 }
@@ -57,6 +57,13 @@
                 /* Question numbering */
                 body { counter-reset: question }
                 .que .qtext::before { counter-increment: question; content: counter(question) ". "; font-weight: bold }
+
+                /* Cosmetic details */
+                .que .formulation { background-color: transparent }
+                .editor_atto_content.form-control { border: 1px solid #ced4da }
+
+                /* Usability */
+                .editor_atto_content.form-control { min-height: 48px !important }
             `;
             document.documentElement.appendChild(stylesheet);
         });
