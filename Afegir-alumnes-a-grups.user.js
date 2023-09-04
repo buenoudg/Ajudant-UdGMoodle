@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UdGMoodle: Afegir alumnes a grups
 // @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1.5
+// @version      0.1.6
 // @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @author       Antonio Bueno <antonio.bueno@udg.edu>
 // @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
@@ -9,8 +9,8 @@
 // @match        *://moodle2.udg.edu/group/members.php*
 // @match        *://cursos.udg.edu/group/index.php*
 // @match        *://cursos.udg.edu/group/members.php*
-// @require      https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.slim.min.js
-// @require      https://cdn.jsdelivr.net/npm/toastify-js
+// @require      https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
+// @require      https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
 // @resource     toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
@@ -27,6 +27,7 @@
  *  - 0.1.3 (2018-07-28) Millors notificacions a la pàgina de gestió d'usuaris d'un grup
  *  - 0.1.4 (2018-07-28) Retocs estètics i simplificació del codi
  *  - 0.1.5 (2022-03-28) L'script ara també funciona al Moodle de la Fundació UdG
+ *  - 0.1.6 (2023-09-04) Compatible amb Greasy Fork per fer més fàcil la distribució i actualització
  */
 
 // les instruccions que es veuran al requadre #assignacions quan estigui buit
