@@ -1,22 +1,33 @@
 // ==UserScript==
-// @name         UdGMoodle: Afegir alumnes a grups
-// @namespace    https://github.com/buenoudg/Ajudant-UdGMoodle
-// @version      0.1.6
-// @description  Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
-// @author       Antonio Bueno <antonio.bueno@udg.edu>
-// @icon         https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
-// @match        *://moodle2.udg.edu/group/index.php*
-// @match        *://moodle2.udg.edu/group/members.php*
-// @match        *://cursos.udg.edu/group/index.php*
-// @match        *://cursos.udg.edu/group/members.php*
-// @require      https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
-// @require      https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
-// @resource     toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
-// @grant        GM_addStyle
-// @grant        GM_getResourceText
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
+
+// @name            UdGMoodle: Afegir alumnes a grups
+// @name:ca         UdGMoodle: Afegir alumnes a grups
+// @name:en         UdGMoodle: Add students to groups
+// @name:es         UdGMoodle: Agregar estudiantes a grupos
+// @version         0.1.7
+// @author          Antonio Bueno <antonio.bueno@udg.edu>
+// @description     Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
+// @description:ca  Eina per facilitar afegir estudiants als grups de cursos del Moodle de la UdG
+// @description:en  Tool to facilitate adding students to Moodle course groups at UdG
+// @description:es  Herramienta para facilitar el agregar estudiantes a los grupos de cursos del Moodle de la UdG
+// @license         MIT
+// @namespace       https://github.com/buenoudg/Ajudant-UdGMoodle
+// @supportURL      https://github.com/buenoudg/Ajudant-UdGMoodle/issues
+// @icon            https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_icon_38x38@2x.png
+// @match           *://moodle.udg.edu/group/index.php*
+// @match           *://moodle.udg.edu/group/members.php*
+// @match           *://cursos.udg.edu/group/index.php*
+// @match           *://cursos.udg.edu/group/members.php*
+// @match           *://moodle2.udg.edu/group/index.php*
+// @match           *://moodle2.udg.edu/group/members.php*
+// @require         https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
+// @require         https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.min.js
+// @resource        toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css
+// @grant           GM_addStyle
+// @grant           GM_getResourceText
+// @grant           GM_setValue
+// @grant           GM_getValue
+// @grant           GM_deleteValue
 // ==/UserScript==
 
 /*
@@ -28,6 +39,7 @@
  *  - 0.1.4 (2018-07-28) Retocs estètics i simplificació del codi
  *  - 0.1.5 (2022-03-28) L'script ara també funciona al Moodle de la Fundació UdG
  *  - 0.1.6 (2023-09-04) Compatible amb Greasy Fork per fer més fàcil la distribució i actualització
+ *  - 0.1.7 (2023-09-04) Compatible amb el nou UdGMoodle
  */
 
 // les instruccions que es veuran al requadre #assignacions quan estigui buit
@@ -43,13 +55,13 @@ Exemple:
 Després selecciona cada grup i prem el botó &quot;Afegeix/suprimeix usuaris&quot;`;
 
 // #assignacions és el requadre on cal enganxar la llista de números UdG i grups
-const assignacionsCSS = 
+const assignacionsCSS =
 `#assignacions {
     background-color: #FFE;
     font-family: Consolas, monaco, monospace !important;
     height: 22.6em; margin-top: 0.3em
 }`
-const assignacionsHTML = 
+const assignacionsHTML =
 `<div class="col-md-2 span2">
 <span><span class="fa fa-wrench"></span>Ajudant Moodle</span>
 <textarea autofocus id="assignacions" placeholder="${instruccions}" spellcheck="false">
@@ -133,7 +145,7 @@ const assignacionsHTML =
             // Guarda les assignacions si hi canvien
             $("#assignacions").on("change keyup paste", function () {
                 // Abans de guardar-les, es simplifica l'espai en blanc del text introduït
-                GM_setValue("assignacions", 
+                GM_setValue("assignacions",
                     this.value.trim().replace(/\s+/g, " ").replace(/\s(\d{7})/g, "\n$1"));
             });
 
