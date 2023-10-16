@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.3.4
+// @version     0.4
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
 // @description Cleans/simplifies a Moodle Quiz to be printable
 // @namespace   bueno.bcds.udg.edu
+// @match       https://moodle.udg.edu/mod/quiz/attempt.php*
 // @match       https://moodle2.udg.edu/mod/quiz/attempt.php*
 // @icon        https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_44x44.png
 // @require     https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
@@ -11,6 +12,11 @@
 // @resource    toastifyCSS https://cdn.jsdelivr.net/npm/toastify-js@1/src/toastify.css
 // @grant       GM.getResourceUrl
 // ==/UserScript==
+
+/*
+ * Versions:
+ *  - 0.4 (2023-09-16) Compatible amb el nou UdGMoodle
+ */
 
 // jshint esversion: 8
 (function () {
@@ -43,20 +49,22 @@
             let stylesheet = document.createElement("style");
             stylesheet.textContent = `
                 /* Hide elements */
-                nav, #nav-drawer, #nav-drawer-footer, .activity-navigation,
+                nav, #nav-drawer, #nav-drawer-footer, .activity-navigation, .tertiary-navigation,
                 #page-wrapper, #top-footer, .que .info, .submitbtns, .multichoice .prompt,
                 .content input[type="submit"], .filemanager, .editor_atto_toolbar { display: none !important }
 
                 /* Adjust spacing */
-                body, .que .content, .que .ablock, .que .ablock .answer>div:last-child { margin: 0 }
+                body, .que .content, .que .ablock .answer>div:last-child { margin: 0 }
                 #region-main>.card { border: none }
                 .card-body { padding: 0 !important }
                 .que { margin: 1em auto }
-                .que .qtext { margin-bottom: 0.5em }
+                .que .qtext { margin: 0 0 0.5em 1.7em }
+                .que .ablock { margin: 0 0 0 0.5em }
+                .que .qtext table td { padding: 0 0.25em }
 
                 /* Question numbering */
                 body { counter-reset: question }
-                .que .qtext::before { counter-increment: question; content: counter(question) ". "; font-weight: bold }
+                .que .qtext::before { counter-increment: question; content: counter(question) ". "; font-weight: bold; margin-left: -1.7em }
 
                 /* Cosmetic details */
                 .que .formulation { background-color: transparent }
