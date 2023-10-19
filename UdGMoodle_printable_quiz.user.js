@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        UdGMoodle Printable Quiz
-// @version     0.4
+// @version     0.4.1
 // @author      Antonio Bueno <antonio.bueno@udg.edu>
 // @description Cleans/simplifies a Moodle Quiz to be printable
 // @namespace   bueno.bcds.udg.edu
@@ -15,7 +15,8 @@
 
 /*
  * Versions:
- *  - 0.4 (2023-09-16) Compatible amb el nou UdGMoodle
+ *  - 0.4.0 (2023-09-16) Compatible amb el nou UdGMoodle
+ *  - 0.4.1 (2023-10-19) Retocs estétics
  */
 
 // jshint esversion: 8
@@ -64,7 +65,7 @@
 
                 /* Question numbering */
                 body { counter-reset: question }
-                .que .qtext::before { counter-increment: question; content: counter(question) ". "; font-weight: bold; margin-left: -1.7em }
+                .que .qtext::before { counter-increment: question; content: counter(question) ". "; font-weight: bold; margin-left: -1.7em; float: left }
 
                 /* Cosmetic details */
                 .que .formulation { background-color: transparent }
