@@ -3,7 +3,7 @@
 // @name:ca         Participants: Llistes d'estudiants
 // @name:en         Participants: Students' lists
 // @name:es         Participantes: Listas de estudiantes
-// @version         0.7.2
+// @version         0.7.3
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Generates student/group and student/teacher lists
 // @description:ca  Genera llistes estudiant/grup i estudiant/professor
@@ -12,6 +12,7 @@
 // @license         MIT
 // @namespace       https://github.com/buenoudg/Ajudant-UdGMoodle
 // @supportURL      https://github.com/buenoudg/Ajudant-UdGMoodle/issues
+// @match           https://moodle.udg.edu/user/index.php?*
 // @match           https://moodle2.udg.edu/user/index.php?*
 // @icon            https://raw.githubusercontent.com/buenoudg/Ajudant-UdGMoodle/master/udgmoodle_icon_38x38@2x.png
 // @require         https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js
@@ -59,6 +60,7 @@
 
     const getUserData = () => { // used to extract all the relevant data from the main table
         let users = [];
+        $(".userinitials:not([alt])").attr("alt", function() { return $(this).text() }).text("");
         $("#participants tbody tr").not(".emptyrow").each(function () {
             const $cells = $(this).children();
             let user = { "name": $cells.eq(info.column.fullname).text().trim() };
@@ -116,6 +118,12 @@
         #udgmoodle_buttons a { background-color: #568; border-radius: 1.2em; color: white; display: inline-block;
             margin: 4px 8px 0 0; padding: 0.425rem 1.25rem; text-decoration: none !important }
         #udgmoodle_buttons a:hover { background-color: #78A; color: white; text-shadow: 0 1px 2px #000A }
+    `);
+
+    // CSS for the user initials
+    GM_addStyle('' + `
+        .userinitials:not([alt]) { color: red }
+        .userinitials[alt]:before { content: attr(alt) }
     `);
 
     /*
