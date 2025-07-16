@@ -4,7 +4,7 @@
 // @name:ca         UdGMoodle: Afegir alumnes a grups
 // @name:en         UdGMoodle: Add students to groups
 // @name:es         UdGMoodle: Agregar estudiantes a grupos
-// @version         0.1.8
+// @version         0.1.9
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Eina per facilitar afegir alumnes als grups d'una assignatura del Moodle de la UdG
 // @description:ca  Eina per facilitar afegir estudiants als grups de cursos del Moodle de la UdG
@@ -28,6 +28,8 @@
 // @grant           GM_setValue
 // @grant           GM_getValue
 // @grant           GM_deleteValue
+// @downloadURL https://update.greasyfork.org/scripts/474504/UdGMoodle%3A%20Afegir%20alumnes%20a%20grups.user.js
+// @updateURL https://update.greasyfork.org/scripts/474504/UdGMoodle%3A%20Afegir%20alumnes%20a%20grups.meta.js
 // ==/UserScript==
 
 /*
@@ -41,6 +43,7 @@
  *  - 0.1.6 (2023-09-04) Compatible amb Greasy Fork per fer més fàcil la distribució i actualització
  *  - 0.1.7 (2023-09-04) Compatible amb el nou UdGMoodle
  *  - 0.1.8 (2023-09-04) Activa el botó "Afegeix" quan hi ha alumnes auto-seleccionats i retocs estètics
+ *  - 0.1.9 (2025-07-16) Neteja de dades millorada. Errata corregida. Auto-actualitzable via GreasyFork.
  */
 
 // les instruccions que es veuran al requadre #assignacions quan estigui buit
@@ -83,10 +86,10 @@ const assignacionsHTML =
         if (window.location.pathname == "/group/index.php") { // gestió dels grups
 
         // Makes clear what script is running and its version
-        notification(GM.info.script[`name:${navigator.language.slice(0,2)}`] + " " + GM.info.script.version, "hello", 3);
+        notificacio(GM.info.script[`name:${navigator.language.slice(0,2)}`] + " " + GM.info.script.version, "hello", 3);
 
             // El requadre #assignacions és on cal enganxar les dades
-            // Format: un número UdG i un nom de grup, separats per un espai en blanc, a cada línia
+            // Format: un número UdG i un nom de grup a cada línia, separats per un espai, un tabulador o un punt i coma
             GM_addStyle(assignacionsCSS);
             $("div.groupmanagementtable div.row").append(assignacionsHTML)
                 .find("div.col-md-6.mb-1").removeClass("col-md-6").addClass("col-md-4");
@@ -106,9 +109,8 @@ const assignacionsHTML =
 
             // Guarda les assignacions si hi canvien
             $("#assignacions").on("change keyup paste", function () {
-                // Abans de guardar-les, es simplifica l'espai en blanc del text introduït
-                GM_setValue("assignacions",
-                    this.value.trim().replace(/\s+/g, " ").replace(/\s(\d{7})/g, "\n$1"));
+                // Abans de guardar-les, es simplifica/neteja el text introduït
+                GM_setValue("assignacions", this.value.trim().replace(/[;\s+]/g, " ").replace(/\s\b(\d{7})\b/g, "\n$1").replace(/^\D+$/m, "").trim());
             });
 
             // Oblida el nombre d'usuaris inscrits a l'últim grup gestionat
@@ -175,7 +177,7 @@ const assignacionsHTML =
         div.toastify { margin: inherit; width: inherit; border-radius: 1.5em; font-family:
             -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif }
     `);
-    function notification(message, type = "info", timeout = 5) {
+    function notificacio(message, type = "info", timeout = 5) {
         // The "type" parameter accepts four values: "info", "warning", "error" and "hello"
         // The "timeout" parameter is expressed in seconds although Toastify uses milliseconds
         let color, icon;
