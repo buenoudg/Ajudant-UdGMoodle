@@ -3,7 +3,7 @@
 // @name:ca         Millores a "Participants"
 // @name:en         Improvements to "Participants"
 // @name:es         Mejoras en "Participantes"
-// @version         1.0.0
+// @version         1.0.1
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Enhances Moodle participants pages with CSV/JSON export, a print-friendly view, and role-based highlighting.
 // @description:ca  Millora les pàgines de participants de Moodle amb exportació CSV/JSON, una vista per imprimir i ressaltat segons el rol.
@@ -34,14 +34,48 @@
    - Optional higher-quality photos (persistent)
    - Locale-aware UI (ca, es, en)
    - Resilient toolbar re-injection when Moodle updates the DOM
+   - Tested with Violentmonkey (recommended) and Tampermonkey in Firefox and Vivaldi
 
   Repository:  https://github.com/buenoudg/Ajudant-UdGMoodle
   Changelog:   https://github.com/buenoudg/Ajudant-UdGMoodle/releases
+
+  v1.0.1 (2025-10-09) Compatible with Safari via the Userscripts extension (macOS, iPadOS, iOS).
 ----------------------------------------------------------------------
 */
 
 (() => {
   'use strict';
+
+  // --------------------------------
+  // GM_* polyfills for Safari
+  // --------------------------------
+
+  if (typeof GM_getValue === 'undefined') {
+    window.GM_getValue = function (name, defaultValue) {
+      const raw = localStorage.getItem(name);
+      if (raw === null) return defaultValue;
+      return JSON.parse(raw);
+    };
+    console.log("GM_getValue() polyfilled");
+  }
+
+  if (typeof GM_setValue === 'undefined') {
+    window.GM_setValue = function (name, value) {
+      localStorage.setItem(name, JSON.stringify(value));
+    };
+    console.log("GM_setValue() polyfilled");
+  }
+
+  if (typeof GM_addStyle === 'undefined') {
+    window.GM_addStyle = function (css) {
+      const el = document.createElement('style');
+      el.type = 'text/css';
+      el.appendChild(document.createTextNode(css));
+      (document.head || document.documentElement).appendChild(el);
+      return el;
+    };
+    console.log("GM_addStyle() polyfilled");
+  }
 
   // --------------------------------
   //  LOCALE DETECTION
