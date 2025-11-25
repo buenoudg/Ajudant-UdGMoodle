@@ -3,7 +3,7 @@
 // @name:ca         Millores a "Participants"
 // @name:en         Improvements to "Participants"
 // @name:es         Mejoras en "Participantes"
-// @version         1.0.1
+// @version         1.0.2
 // @author          Antonio Bueno <antonio.bueno@udg.edu>
 // @description     Enhances Moodle participants pages with CSV/JSON export, a print-friendly view, and role-based highlighting.
 // @description:ca  Millora les pàgines de participants de Moodle amb exportació CSV/JSON, una vista per imprimir i ressaltat segons el rol.
@@ -34,12 +34,12 @@
    - Optional higher-quality photos (persistent)
    - Locale-aware UI (ca, es, en)
    - Resilient toolbar re-injection when Moodle updates the DOM
-   - Tested with Violentmonkey (recommended) and Tampermonkey in Firefox and Vivaldi
 
   Repository:  https://github.com/buenoudg/Ajudant-UdGMoodle
   Changelog:   https://github.com/buenoudg/Ajudant-UdGMoodle/releases
 
   v1.0.1 (2025-10-09) Compatible with Safari via the Userscripts extension (macOS, iPadOS, iOS).
+  v1.0.2 (2025-11-25) Made downloadable file names simpler
 ----------------------------------------------------------------------
 */
 
@@ -186,30 +186,62 @@
   const getCellText = (td) => normalizeWhitespace(td?.textContent || '');
   const splitComma = (s) => s ? s.split(',').map(v => normalizeWhitespace(v)).filter(Boolean) : [];
 
+  function simplifyText(s) {
+    if (!s) return "";
+
+    // Catalan "l·l" → "l.l"
+    s = s.replace(/l·l/gi, "l.l");
+
+    // Strip diacritics using NFD
+    s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // Transliterate characters NFD does not fix
+    const hard = { "ñ": "n", "Ñ": "N", "ç": "c", "Ç": "C" };
+    s = s.replace(/[ñÑçÇ]/g, ch => hard[ch]);
+
+    // Replace any remaining non-ASCII with a hyphen
+    s = s.replace(/[^\x00-\x7F]/g, "-");
+
+    // Collapse multiple hyphens into a single one
+    s = s.replace(/-+/g, "-");
+
+    return normalizeWhitespace(s);
+  }
+
+  function makeFilenameSafe(s) {
+    // Replace forbidden Windows/macOS characters
+    s = s.replace(/[\\/:*?"<>|-]+/g, "-");
+
+    // Collapse multiple hyphens into a single one
+    s = s.replace(/-+/g, "-");
+
+    // Trim trailing dots/spaces (Windows rejects them)
+    s = s.replace(/[. ]+$/, "");
+
+    // Avoid names becoming empty
+    if (s === "") s = "file";
+
+    return s.trim();
+  }
+
   // Safe filename from <h1> and filters
   function safeFilename(extension) {
     // Get and sanitize course title
-    const courseTitle = document.querySelector('h1').textContent.trim()
-      .replace(/[\\/:*?"<>|]+/g, '-')
-      .replace(/\s+/g, ' ')
-      .trim();
+    const courseTitle = simplifyText(document.querySelector('h1')?.textContent);
 
     // Collect active filters
     const filters = [...document.querySelectorAll('div[data-filterregion="value"] span.badge')]
-      .map(s => s.textContent.trim())
+      .map(s => simplifyText(s.textContent))
       .filter(Boolean);
 
     // Build filter text (if any)
     const filterText = filters.length ? filters.join(', ') : 'participants';
 
     // Add date suffix (yyyy-MM-dd)
-    const dateSuffix = (() => {
-      const d = new Date();
-      return d.toISOString().split('T')[0]; // e.g. 2025-10-07
-    })();
+    const dateSuffix = new Date().toISOString().split('T')[0];
 
     // Assemble the final filename
-    return `${courseTitle} ${filterText} (${dateSuffix}).${extension}`.trim();
+    return makeFilenameSafe(`${courseTitle} ${filterText} (${dateSuffix}).${extension}`);
   }
 
   // Blob download helper
@@ -744,7 +776,7 @@
       else downgradePhotos(table);
       GM_setValue('improvePhotos', chkPhotos.checked);
     });
-    
+
     // Compose toolbar
     toolbar.appendChild(btnCsv);
     toolbar.appendChild(btnJson);
@@ -778,7 +810,7 @@
   // Moodle dynamically re-renders the participants table via AJAX, so the toolbar may disappear.
   // Watch the DOM and re-run init() when needed.
   const uiObserver = new MutationObserver(init);
-  
+
   uiObserver.observe(document.documentElement, {
     childList: true,
     subtree: true,
